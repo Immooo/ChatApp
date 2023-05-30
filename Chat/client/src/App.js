@@ -1,40 +1,50 @@
-import React, { useEffect, useState } from 'react';
-import socketIOClient from 'socket.io-client';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import './App.css';
-import LoginPage from './LoginPage';
-import { auth } from './firebase';
+import React, { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { TransitionGroup, CSSTransition } from "react-transition-group";
+import LoginPage from "./LoginPage";
+import RegisterPage from "./RegisterPage";
+import HomePage from "./HomePage";
+import { auth } from "./firebase";
+import { io } from "socket.io-client";
 
-const ENDPOINT = 'http://localhost:3000';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+
+const ENDPOINT = "http://localhost:3000";
 
 function App() {
-  const [username, setUsername] = useState('');
-  const [channel, setChannel] = useState('');
+  const [username, setUsername] = useState("");
+  const [channel, setChannel] = useState("");
   const [socket, setSocket] = useState(null);
   const [response, setResponse] = useState([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [connectedUsers, setConnectedUsers] = useState([]);
-  const [lastInput, setLastInput] = useState('');
+  const [lastInput, setLastInput] = useState("");
   const [isNotificationActive, setIsNotificationActive] = useState(false);
   const [editMessageId, setEditMessageId] = useState(null);
-  const [editMessageInput, setEditMessageInput] = useState('');
+  const [editMessageInput, setEditMessageInput] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
-  const [searchUser, setSearchUser] = useState('');
+  const [searchUser, setSearchUser] = useState("");
   const [user, setUser] = useState(null);
-  const [messages, setMessages] = useState([]);
 
-  // Ajoutez cette fonction pour gérer la connexion de l'utilisateur
+  // Add this function to handle user login
   const handleLogin = (username) => {
     setUsername(username);
     setUser({ username });
   };
 
+  const handleLogout = () => {
+    auth.signOut();
+  };
 
   const connectSocket = () => {
-    if (username !== '' && channel !== '') {
-      const newSocket = socketIOClient(ENDPOINT, {
+    if (username !== "" && channel !== "") {
+      const newSocket = io(ENDPOINT, {
         query: { username, channel },
       });
 
@@ -44,8 +54,8 @@ function App() {
 
   const onSaveMessage = (messageId, newMessage) => {
     // Emit the 'edit message' event to the server
-    socket.emit('edit message', { messageId, newMessage });
-    
+    socket.emit("edit message", { messageId, newMessage });
+
     // Reset the editMessageId
     setEditMessageId(null);
   };
@@ -54,23 +64,22 @@ function App() {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
         setUser(authUser);
-        setUsername(authUser.displayName); // Utilisez le pseudo de l'utilisateur Google
+        setUsername(authUser.displayName); // Use the username from the Google user
       } else {
         setUser(null);
-        setUsername(''); // Remettez le nom d'utilisateur à une chaîne vide si l'utilisateur se déconnecte
+        setUsername(""); // Reset the username to an empty string if the user logs out
       }
     });
-  
+
     return () => unsubscribe();
   }, []);
-  
 
   useEffect(() => {
     if (socket) {
-      if (input.trim() !== '') {
-        socket.emit('user typing', { isTyping: true });
+      if (input.trim() !== "") {
+        socket.emit("user typing", { isTyping: true });
       } else {
-        socket.emit('user typing', { isTyping: false });
+        socket.emit("user typing", { isTyping: false });
       }
       setLastInput(input);
     }
@@ -78,43 +87,43 @@ function App() {
 
   useEffect(() => {
     if (socket) {
-      socket.off('chat message');
-      socket.off('private message');
-      socket.off('previous messages');
-      socket.off('current users');
-      socket.off('typing notification');
-      socket.off('edit message');
-      socket.off('delete message');
+      socket.off("chat message");
+      socket.off("private message");
+      socket.off("previous messages");
+      socket.off("current users");
+      socket.off("typing notification");
+      socket.off("edit message");
+      socket.off("delete message");
 
-      socket.on('chat message', messageData => {
-        setResponse(oldMessages => [...oldMessages, messageData]);
+      socket.on("chat message", (messageData) => {
+        setResponse((oldMessages) => [...oldMessages, messageData]);
         if (messageData.username !== username) {
-          const notification = `${messageData.username} a envoyé un nouveau message`;
+          const notification = `${messageData.username} sent a new message`;
           toast.info(notification);
           setIsNotificationActive(true);
         }
       });
 
-      socket.on('private message', messageData => {
-        setResponse(oldMessages => [...oldMessages, messageData]);
+      socket.on("private message", (messageData) => {
+        setResponse((oldMessages) => [...oldMessages, messageData]);
         if (messageData.username !== username) {
-          const notification = `${messageData.username} vous a envoyé un message privé`;
+          const notification = `${messageData.username} sent you a private message`;
           toast.info(notification);
           setIsNotificationActive(true);
         }
       });
 
-      socket.on('previous messages', messages => {
-        setResponse(oldMessages => [...oldMessages, ...messages]);
+      socket.on("previous messages", (messages) => {
+        setResponse((oldMessages) => [...oldMessages, ...messages]);
       });
 
-      socket.on('current users', users => {
+      socket.on("current users", (users) => {
         setConnectedUsers(users);
       });
 
-      socket.on('typing notification', ({ username, isTyping }) => {
-        setConnectedUsers(prevUsers =>
-          prevUsers.map(user => {
+      socket.on("typing notification", ({ username, isTyping }) => {
+        setConnectedUsers((prevUsers) =>
+          prevUsers.map((user) => {
             if (user.username === username) {
               return { ...user, isTyping };
             }
@@ -123,31 +132,31 @@ function App() {
         );
       });
 
-      socket.on('edit message', ({ messageId, newMessage }) => {
-        setResponse(oldMessages =>
-          oldMessages.map(message => {
+      socket.on("edit message", ({ messageId, newMessage }) => {
+        setResponse((oldMessages) =>
+          oldMessages.map((message) => {
             if (message.id === messageId) {
-              return { ...message, msg: newMessage, edited: true }; // Indiquez que le message a été modifié.
+              return { ...message, msg: newMessage, edited: true }; // Indicate that the message has been edited.
             }
             return message;
           })
         );
       });
 
-      socket.on('delete message', messageId => {
-        setResponse(oldMessages =>
-          oldMessages.filter(message => message.id !== messageId)
+      socket.on("delete message", (messageId) => {
+        setResponse((oldMessages) =>
+          oldMessages.filter((message) => message.id !== messageId)
         );
       });
 
       return () => {
-        socket.off('chat message');
-        socket.off('private message');
-        socket.off('previous messages');
-        socket.off('current users');
-        socket.off('typing notification');
-        socket.off('edit message');
-        socket.off('delete message');
+        socket.off("chat message");
+        socket.off("private message");
+        socket.off("previous messages");
+        socket.off("current users");
+        socket.off("typing notification");
+        socket.off("edit message");
+        socket.off("delete message");
       };
     }
   }, [socket]);
@@ -156,52 +165,56 @@ function App() {
     let titleInterval;
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         setIsNotificationActive(false);
         clearInterval(titleInterval);
-        document.title = 'Chat App';
+        document.title = "Chat App";
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     if (isNotificationActive) {
       titleInterval = setInterval(() => {
-        document.title = document.title === 'Nouveau message' ? 'Chat App' : 'Nouveau message';
+        document.title =
+          document.title === "New Message" ? "Chat App" : "New Message";
       }, 1000);
     } else {
-      document.title = 'Chat App';
+      document.title = "Chat App";
     }
 
     return () => {
       clearInterval(titleInterval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      document.title = 'Chat App';
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.title = "Chat App";
     };
   }, [isNotificationActive]);
 
   const disconnectFromChannel = () => {
     if (socket) {
-      socket.emit('disconnect from channel');
+      socket.emit("disconnect from channel");
       setSocket(null);
     }
   };
 
   const sendMessage = () => {
-    if (socket && input.trim() !== '') {
+    if (socket && input.trim() !== "") {
       if (editMessageId) {
-        socket.emit('edit message', { messageId: editMessageId, newMessage: input });
+        socket.emit("edit message", {
+          messageId: editMessageId,
+          newMessage: input,
+        });
         setEditMessageId(null);
-        setEditMessageInput('');
+        setEditMessageInput("");
       } else if (selectedUser) {
-        socket.emit('private message', {
+        socket.emit("private message", {
           message: input,
           recipient: selectedUser.username,
         });
       } else {
-        socket.emit('chat message', { message: input, isTyping: false });
+        socket.emit("chat message", { message: input, isTyping: false });
       }
-      setInput('');
+      setInput("");
     }
   };
 
@@ -213,28 +226,28 @@ function App() {
 
   const cancelEditMessage = () => {
     setEditMessageId(null);
-    setEditMessageInput('');
-    setInput('');
+    setEditMessageInput("");
+    setInput("");
   };
 
-  const deleteMessage = messageId => {
+  const deleteMessage = (messageId) => {
     if (socket) {
-      socket.emit('delete message', messageId);
+      socket.emit("delete message", messageId);
     }
   };
 
-  const handleKeyDown = e => {
-    if (e.key === 'Enter') {
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       sendMessage();
     }
   };
 
-  const handleInputChange = e => {
+  const handleInputChange = (e) => {
     setInput(e.target.value);
   };
 
-  const selectUser = user => {
+  const selectUser = (user) => {
     setSelectedUser(user);
   };
 
@@ -242,24 +255,45 @@ function App() {
     setSelectedUser(null);
   };
 
-  const handleSearchUser = e => {
+  const handleSearchUser = (e) => {
     setSearchUser(e.target.value);
   };
 
-  const filteredUsers = connectedUsers.filter(user =>
+  const filteredUsers = connectedUsers.filter((user) =>
     user.username.toLowerCase().includes(searchUser.toLowerCase())
   );
 
   return (
     <div className="App">
-      {user ? (
+      <Routes>
+        <Route
+          path="/"
+          element={
+            user ? (
+              <HomePage user={user} onLogout={handleLogout} />
+            ) : (
+              <LoginPage onLogin={handleLogin} />
+            )
+          }
+        />
+        <Route path="/inscription" element={<RegisterPage />} />
+        <Route path="/connexion" element={<LoginPage />} />
+      </Routes>
+
+      {user && (
         <>
           {!socket && (
-            <div className="user-list" style={{ position: 'relative' }}>
+            <div className="user-list" style={{ position: "relative" }}>
               <label>Username: </label>
-              <input value={username} onChange={e => setUsername(e.target.value)} />
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
               <label>Channel: </label>
-              <select value={channel} onChange={e => setChannel(e.target.value)}>
+              <select
+                value={channel}
+                onChange={(e) => setChannel(e.target.value)}
+              >
                 <option value="">Select a channel...</option>
                 <option value="channel1">Channel 1</option>
                 <option value="channel2">Channel 2</option>
@@ -285,11 +319,15 @@ function App() {
                   {filteredUsers.map((user, idx) => (
                     <li key={idx}>
                       <div
-                        className={`user-status ${user.isConnected ? 'online' : 'offline'}`}
+                        className={`user-status ${
+                          user.isConnected ? "online" : "offline"
+                        }`}
                       ></div>
                       {user.username}
                       {user.username !== username && (
-                        <button onClick={() => selectUser(user)}>Message privé</button>
+                        <button onClick={() => selectUser(user)}>
+                          Private Message
+                        </button>
                       )}
                     </li>
                   ))}
@@ -301,30 +339,46 @@ function App() {
                   {response.map((messageData, idx) => (
                     <CSSTransition key={idx} timeout={500} classNames="message">
                       <li className="message-line">
-                      <span className="timestamp">{messageData.timestamp}</span>
-                      <strong>{messageData.username}:</strong>
-                      {editMessageId === messageData.id ? (
+                        <span className="timestamp">
+                          {messageData.timestamp}
+                        </span>
+                        <strong>{messageData.username}:</strong>
+                        {editMessageId === messageData.id ? (
                           <div>
                             <input
                               type="text"
                               value={editMessageInput}
-                              onChange={e => setEditMessageInput(e.target.value)}
+                              onChange={(e) =>
+                                setEditMessageInput(e.target.value)
+                              }
                             />
-                            <button onClick={() => onSaveMessage(editMessageId, editMessageInput)}>Enregistrer</button>
-                            <button onClick={cancelEditMessage}>Annuler</button>
+                            <button
+                              onClick={() =>
+                                onSaveMessage(editMessageId, editMessageInput)
+                              }
+                            >
+                              Save
+                            </button>
+                            <button onClick={cancelEditMessage}>Cancel</button>
                           </div>
                         ) : (
                           <div>
                             &nbsp;{messageData.msg}
-                            {messageData.isPrivate && <span> (MP)</span>} {/* Ajout de l'indication de MP */}
-                            {messageData.edited && <span> (Modifié)</span>}
+                            {messageData.isPrivate && <span> (PM)</span>}
+                            {messageData.edited && <span> (Edited)</span>}
                             {messageData.username === username && (
                               <div className="message-options">
-                                <button onClick={() => editMessage(messageData.id, messageData.msg)}>
-                                  Modifier
+                                <button
+                                  onClick={() =>
+                                    editMessage(messageData.id, messageData.msg)
+                                  }
+                                >
+                                  Edit
                                 </button>
-                                <button onClick={() => deleteMessage(messageData.id)}>
-                                  Supprimer
+                                <button
+                                  onClick={() => deleteMessage(messageData.id)}
+                                >
+                                  Delete
                                 </button>
                               </div>
                             )}
@@ -337,15 +391,15 @@ function App() {
               </ul>
               {selectedUser && (
                 <div className="private-message">
-                  <strong>Message privé avec {selectedUser.username}</strong>
+                  <strong>Private Message with {selectedUser.username}</strong>
                   <input
                     type="text"
                     value={input}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                   />
-                  <button onClick={deselectUser}>Annuler</button>
-                  <button onClick={sendMessage}>Envoyer</button>        
+                  <button onClick={deselectUser}>Cancel</button>
+                  <button onClick={sendMessage}>Send</button>
                 </div>
               )}
               {!selectedUser && (
@@ -357,19 +411,22 @@ function App() {
                     onKeyDown={handleKeyDown}
                   />
                   <button onClick={sendMessage}>
-                    {editMessageId ? 'Modifier' : 'Envoyer'}
+                    {editMessageId ? "Edit" : "Send"}
                   </button>
-                  &nbsp; {}
-                  <button onClick={disconnectFromChannel}>Déconnexion</button>
+                  &nbsp;
+                  <button onClick={disconnectFromChannel}>
+                    Disconnect Channel
+                  </button>
+                  <button onClick={handleLogout}>Logout Google</button>
                 </div>
               )}
             </div>
           )}
           <ToastContainer />
-          <p><strong>© 2023, TROISE Adrien</strong></p>
+          <p>
+            <strong>© 2023, Adrien TROISE</strong>
+          </p>
         </>
-      ) : (
-        <LoginPage onLogin={handleLogin} />
       )}
     </div>
   );

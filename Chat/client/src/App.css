@@ -175,3 +175,10 @@ input {
 .message-options {
   margin-left: auto;
 }
+
+.google-logo {
+  width: 50px;
+  /* Modifier la valeur selon vos besoins */
+  height: 50px;
+  /* Modifier la valeur selon vos besoins */
+}
