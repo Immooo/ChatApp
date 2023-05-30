@@ -1,2 +1,22 @@
 # ChatApp
-Ceci est une ChatApp
+Bienvenue sur mon chat App qui est mon 1er petit projet, une plateforme conviviale qui facilite la communication en ligne. Voici ce que vous pouvez faire :
+
+Inscription facile : Vous avez deux options pour vous inscrire. Vous pouvez créer un compte en utilisant votre compte Google ou en vous enregistrant avec une adresse e-mail et un mot de passe.
+
+Connexion sécurisée : Une fois inscrit, vous pouvez vous connecter en utilisant votre adresse e-mail et votre mot de passe. Votre compte est sécurisé et vous pouvez y accéder à tout moment.
+
+Réinitialisation du mot de passe : Si jamais vous oubliez votre mot de passe, vous avez la possibilité de le réinitialiser en suivant une procédure simple.
+
+Personnalisation : Une fois connecté, vous pouvez choisir votre pseudonyme, qui sera votre identifiant dans la plateforme.
+
+Choix des canaux : Vous pouvez choisir le canal sur lequel vous souhaitez vous connecter parmi une liste de canaux disponibles. Chaque canal représente un espace de discussion distinct.
+
+Liste des utilisateurs connectés : Une fois connecté à un canal, vous aurez accès à une liste des utilisateurs actuellement connectés sur ce même canal.
+
+Messagerie privée : Vous pouvez envoyer des messages privés à d'autres utilisateurs présents sur le canal. Cela vous permet d'engager des conversations individuelles en toute confidentialité.
+
+Messagerie de canal : Sur le canal, vous pouvez envoyer des messages qui seront visibles par tous les utilisateurs présents. Vous avez la possibilité de modifier ou de supprimer vos propres messages selon vos besoins.
+
+Notifications en temps réel : Chaque fois qu'il y a une modification ou un nouveau message dans le canal, les utilisateurs recevront des notifications pour rester informés en temps réel.
+
+Déconnexion : Vous pouvez vous déconnecter du canal spécifique sur lequel vous êtes connecté ou vous déconnecter complètement de l'application.
