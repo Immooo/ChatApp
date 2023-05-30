@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, updateProfile } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, updateProfile, sendEmailVerification } from "firebase/auth";
 import { getDatabase, ref, set } from "firebase/database";
 import "./App.css";
 import googleLogo from "./googleLogo.png";
@@ -26,31 +26,40 @@ const RegisterPage = () => {
     }
 
     createUserWithEmailAndPassword(auth, email, password)
-      .then(async ({ user }) => {
-        await updateProfile(user, { displayName: email });
+    .then(async ({ user }) => {
+      // Envoyer l'email de vérification
+      await sendEmailVerification(user)
+        .then(() => {
+          console.log("Email de vérification envoyé");
+        })
+        .catch((error) => {
+          console.error("Erreur lors de l'envoi de l'email de vérification :", error);
+        });
 
-        const userRef = ref(db, `users/${user.uid}`);
-        const newUser = { email: email };
+      await updateProfile(user, { displayName: email });
 
-        set(userRef, newUser)
-          .then(() => {
-            setEmail("");
-            setPassword("");
-            setConfirmPassword("");
-            setEmailUsed(false);
-            setTimeout(() => navigate("/chat"), 0);
-          })
-          .catch((error) => {
-            console.error("Erreur lors de l'enregistrement de l'utilisateur :", error);
-          });
-      })
-      .catch((error) => {
-        if (error.code === 'auth/email-already-in-use') {
-          setEmailUsed(true);
-        } else {
-          console.error("Error registering the user: ", error);
-        }
-      });
+      const userRef = ref(db, `users/${user.uid}`);
+      const newUser = { email: email };
+
+      set(userRef, newUser)
+        .then(() => {
+          setEmail("");
+          setPassword("");
+          setConfirmPassword("");
+          setEmailUsed(false);
+          setTimeout(() => navigate("/chat"), 0);
+        })
+        .catch((error) => {
+          console.error("Erreur lors de l'enregistrement de l'utilisateur :", error);
+        });
+    })
+    .catch((error) => {
+      if (error.code === 'auth/email-already-in-use') {
+        setEmailUsed(true);
+      } else {
+        console.error("Error registering the user: ", error);
+      }
+    });
   };
 
   const handleGoogleSignIn = () => {

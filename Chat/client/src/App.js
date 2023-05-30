@@ -4,15 +4,13 @@ import "react-toastify/dist/ReactToastify.css";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import LoginPage from "./LoginPage";
 import RegisterPage from "./RegisterPage";
-import HomePage from "./HomePage";
 import { auth } from "./firebase";
 import { io } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom";
 
 const ENDPOINT = "http://localhost:3000";
@@ -31,15 +29,12 @@ function App() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchUser, setSearchUser] = useState("");
   const [user, setUser] = useState(null);
-
-  // Add this function to handle user login
-  const handleLogin = (username) => {
-    setUsername(username);
-    setUser({ username });
-  };
-
+  const navigate = useNavigate();
+  
   const handleLogout = () => {
-    auth.signOut();
+    auth.signOut().then(() => {
+      navigate("/");
+    });
   };
 
   const connectSocket = () => {
@@ -266,16 +261,6 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route
-          path="/"
-          element={
-            user ? (
-              <HomePage user={user} onLogout={handleLogout} />
-            ) : (
-              <LoginPage onLogin={handleLogin} />
-            )
-          }
-        />
         <Route path="/inscription" element={<RegisterPage />} />
         <Route path="/connexion" element={<LoginPage />} />
       </Routes>
@@ -417,6 +402,7 @@ function App() {
                   <button onClick={disconnectFromChannel}>
                     Disconnect Channel
                   </button>
+                  &nbsp;
                   <button onClick={handleLogout}>Logout Google</button>
                 </div>
               )}
