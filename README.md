@@ -1,5 +1,15 @@
 # ChatApp
-Bienvenue sur mon chat App qui est mon 1er petit projet, une plateforme conviviale qui facilite la communication en ligne. Voici ce que vous pouvez faire :
+Bienvenue sur mon chat App qui est mon 1er petit projet, une plateforme conviviale qui facilite la communication en ligne. 
+
+Ce projet a été développé en utilisant Node.js, React avec Express et firebase pour le backend et l'Auth via Google.
+
+Pour le télécharger, vous pouvez simplement récupérer le fichier ZIP, puis l'extraire sur votre machine. À l'intérieur du dossier "Chat", vous trouverez un sous-dossier appelé "node". Ouvrez une fenêtre de commande (cmd) dans ce dossier et exécutez la commande "node server.js" pour démarrer le serveur.
+
+Ensuite, ouvrez une autre fenêtre de commande (cmd) dans le dossier "client" et exécutez les commandes "npm install" puis "npm start" pour installer les dépendances et démarrer l'application React.
+
+Une fois ces étapes effectuées, vous pourrez profiter de l'application !
+
+Voici ce que vous pouvez faire :
 
 Inscription facile : Vous avez deux options pour vous inscrire. Vous pouvez créer un compte en utilisant votre compte Google ou en vous enregistrant avec une adresse e-mail et un mot de passe.
 
