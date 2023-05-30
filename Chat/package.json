@@ -1,0 +1,18 @@
+{
+  "name": "chat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Adrien TROISE",
+  "license": "ISC",
+  "dependencies": {
+    "emoji-mart": "^5.5.2",
+    "express": "^4.18.2",
+    "moment": "^2.29.4",
+    "react-toastify": "^9.1.3",
+    "socket.io": "^4.6.1"
+  }
+}
