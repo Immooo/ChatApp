@@ -1,5 +1,5 @@
 import React from "react";
-import { createRoot } from "react-dom";
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import LoginPage from "./LoginPage";
 import reportWebVitals from "./reportWebVitals";
@@ -15,7 +15,7 @@ createRoot(root).render(
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/chat" element={<App />} />
+      <Route path="/chat/*" element={<App />} />
       <Route path="/" element={<HomePage />} />
     </Routes>
   </Router>

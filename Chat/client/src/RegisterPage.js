@@ -1,14 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "./firebase";
-import {
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  updateProfile,
-} from "firebase/auth";
-import { db } from "./firebase";
-import { ref, set } from "firebase/database";
+import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, updateProfile } from "firebase/auth";
+import { getDatabase, ref, set } from "firebase/database";
 import "./App.css";
 import googleLogo from "./googleLogo.png";
 
@@ -18,51 +11,46 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
-  const [passwordLengthError, setPasswordLengthError] = useState(false); // New state for password length error
+  const [passwordLengthError, setPasswordLengthError] = useState(false); 
+  const [emailUsed, setEmailUsed] = useState(false);
   const navigate = useNavigate();
+  const auth = getAuth();
+  const db = getDatabase();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!passwordsMatch) {
-      console.error("Les mots de passe ne correspondent pas.");
+    if (!passwordsMatch || password.length < 6) {
+      console.error("Les mots de passe ne correspondent pas ou sont trop courts.");
       return;
     }
 
-    if (password.length < 6) {
-      setPasswordLengthError(true); // Set password length error to true
-      return;
-    }
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(async ({ user }) => {
+        await updateProfile(user, { displayName: email });
 
-    try {
-      const { user } = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      await updateProfile(user, { displayName: email });
+        const userRef = ref(db, `users/${user.uid}`);
+        const newUser = { email: email };
 
-      const userRef = ref(db, `users/${user.uid}`);
-      const newUser = {
-        email: email,
-      };
-
-      set(userRef, newUser)
-        .then(() => {
-          setEmail("");
-          setPassword("");
-          setConfirmPassword("");
-          navigate("/chat");
-        })
-        .catch((error) => {
-          console.error(
-            "Erreur lors de l'enregistrement de l'utilisateur :",
-            error
-          );
-        });
-    } catch (error) {
-      console.error(error);
-    }
+        set(userRef, newUser)
+          .then(() => {
+            setEmail("");
+            setPassword("");
+            setConfirmPassword("");
+            setEmailUsed(false);
+            setTimeout(() => navigate("/chat"), 0);
+          })
+          .catch((error) => {
+            console.error("Erreur lors de l'enregistrement de l'utilisateur :", error);
+          });
+      })
+      .catch((error) => {
+        if (error.code === 'auth/email-already-in-use') {
+          setEmailUsed(true);
+        } else {
+          console.error("Error registering the user: ", error);
+        }
+      });
   };
 
   const handleGoogleSignIn = () => {
@@ -87,41 +75,16 @@ const RegisterPage = () => {
   const handlePasswordChange = (e) => {
     const passwordValue = e.target.value;
     setPassword(passwordValue);
-
-    // Check password length when setting password
-    if (passwordValue.length < 6) {
-      setPasswordLengthError(true);
-    } else {
-      setPasswordLengthError(false);
-    }
-
-    // Check passwords match when setting password
-    if (passwordValue !== confirmPassword) {
-      setPasswordsMatch(false);
-    } else {
-      setPasswordsMatch(true);
-    }
+    setPasswordLengthError(passwordValue.length < 6);
+    setPasswordsMatch(passwordValue === confirmPassword);
   };
 
   const handleConfirmPasswordChange = (e) => {
     const confirmPasswordValue = e.target.value;
     setConfirmPassword(confirmPasswordValue);
-
-    // Check password length when confirming password
-    if (confirmPasswordValue.length < 6) {
-      setPasswordLengthError(true);
-    } else {
-      setPasswordLengthError(false);
-    }
-
-    // Check passwords match when confirming password
-    if (password !== confirmPasswordValue) {
-      setPasswordsMatch(false);
-    } else {
-      setPasswordsMatch(true);
-    }
+    setPasswordLengthError(confirmPasswordValue.length < 6);
+    setPasswordsMatch(password === confirmPasswordValue);
   };
-
 
   return (
     <div>
@@ -135,21 +98,24 @@ const RegisterPage = () => {
           />
         </button>
       </div>
-
       <h2>Créer un compte :</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="email"
           placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setEmailUsed(false);
+          }}
         />
+        {emailUsed && <div style={{ color: "red" }}>Cette adresse e-mail est déjà utilisée.</div>}
         <div className="password-input">
           <input
             type={showPasswords ? "text" : "password"}
             placeholder="Mot de passe"
             value={password}
-            onChange={handlePasswordChange} // use the new function
+            onChange={handlePasswordChange}
           />
         </div>
         <div className="password-input">
@@ -159,16 +125,8 @@ const RegisterPage = () => {
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
           />
-          {confirmPassword && passwordLengthError && (
-            <div style={{ color: "red" }}>
-              Le nombre de caractères minimal pour un mot de passe est de 6.
-            </div>
-          )}
-          {confirmPassword && !passwordsMatch && (
-            <div style={{ color: "red" }}>
-              Les mots de passe ne correspondent pas.
-            </div>
-          )}
+          {confirmPassword && passwordLengthError && <div style={{ color: "red" }}>Le nombre de caractères minimal pour un mot de passe est de 6.</div>}
+          {confirmPassword && !passwordsMatch && <div style={{ color: "red" }}>Les mots de passe ne correspondent pas.</div>}
           <span
             className={`password-toggle ${showPasswords ? "show" : ""}`}
             onClick={toggleShowPasswords}
@@ -176,7 +134,6 @@ const RegisterPage = () => {
             {showPasswords ? "Cacher" : "Afficher"}
           </span>
         </div>
-
         <div>
           <button onClick={handleGoBack}>Revenir à l'accueil</button>
           &nbsp;

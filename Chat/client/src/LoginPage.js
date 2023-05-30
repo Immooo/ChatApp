@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./firebase";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail } from "@firebase/auth";
 import "./App.css";
 
 const LoginPage = () => {
@@ -10,6 +10,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -43,10 +44,21 @@ const LoginPage = () => {
     setShowPassword(!showPassword);
   };
 
+  const sendResetPasswordEmail = (e) => {
+    e.preventDefault();
+
+    sendPasswordResetEmail(auth, resetEmail)
+      .then(() => {
+        setError("Un e-mail de réinitialisation de mot de passe a été envoyé à " + resetEmail);
+      })
+      .catch((error) => {
+        setError("Une erreur s'est produite lors de l'envoi de l'e-mail de réinitialisation du mot de passe.");
+      });
+    };
+
   return (
     <div>
       <h2>Connexion :</h2>
-
       <form onSubmit={signInWithEmail}>
         <input
           type="email"
@@ -72,11 +84,22 @@ const LoginPage = () => {
         <br />
         <button type="submit">Se connecter</button>
       </form>
+      <form onSubmit={sendResetPasswordEmail}>
+        <input
+          type="email"
+          placeholder="Adresse e-mail pour réinitialisation"
+          value={resetEmail}
+          onChange={(e) => setResetEmail(e.target.value)}
+        />
+        <br />
+        <button type="submit">Mot de passe oublié</button>
+      </form>
 
       {error && <p className="error">{error}</p>}
 
       <button onClick={redirectToHome}>Accueil</button>
     </div>
+    
   );
 };
 
