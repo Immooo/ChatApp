@@ -1,7 +1,7 @@
 # ChatApp
 Bienvenue sur mon chat App qui est mon 1er petit projet, une plateforme conviviale qui facilite la communication en ligne. 
 
-Ce projet a été développé en utilisant Node.js, React avec Express et firebase pour le backend et l'Auth via Google.
+Ce projet a été développé en utilisant Node.js v9.5.1, React avec Express et firebase pour le backend et l'Auth via Google.
 
 Pour le télécharger, vous pouvez simplement récupérer le fichier ZIP, puis l'extraire sur votre machine. À l'intérieur du dossier "Chat", vous trouverez un sous-dossier appelé "node". Ouvrez une fenêtre de commande (cmd) dans ce dossier et exécutez la commande "node server.js" pour démarrer le serveur.
 
