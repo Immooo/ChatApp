@@ -1,32 +1,59 @@
-# ChatApp
-Bienvenue sur mon chat App qui est mon 1er petit projet, une plateforme conviviale qui facilite la communication en ligne. 
+# Mon Chat App
 
-Ce projet a été développé en utilisant Node.js v9.5.1, React avec Express et firebase pour le backend et l'Auth via Google.
+Bienvenue sur mon Chat App, mon premier petit projet. Il s'agit d'une plateforme conviviale qui facilite la communication en ligne.
 
-Pour le télécharger, vous pouvez simplement récupérer le fichier ZIP, puis l'extraire sur votre machine. À l'intérieur du dossier "Chat", vous trouverez un sous-dossier appelé "node". Ouvrez une fenêtre de commande (cmd) dans ce dossier et exécutez la commande "node server.js" pour démarrer le serveur.
+## Technologies Utilisées
 
-Ensuite, ouvrez une autre fenêtre de commande (cmd) dans le dossier "client" et exécutez les commandes "npm install" puis "npm start" pour installer les dépendances et démarrer l'application React.
+- **Backend**: Node.js v9.5.1, Express, Firebase
+- **Frontend**: React
+- **Authentification**: Auth via Google
 
-Une fois ces étapes effectuées, vous pourrez profiter de l'application !
+## Installation
 
-Voici ce que vous pouvez faire :
+Pour utiliser cette application, suivez les étapes ci-dessous :
 
-Inscription facile : Vous avez deux options pour vous inscrire. Vous pouvez créer un compte en utilisant votre compte Google ou en vous enregistrant avec une adresse e-mail et un mot de passe.
+1. **Téléchargement**:
+- Téléchargez le fichier ZIP du projet.
+- Extrayez-le sur votre machine.
 
-Connexion sécurisée : Une fois inscrit, vous pouvez vous connecter en utilisant votre adresse e-mail et votre mot de passe. Votre compte est sécurisé et vous pouvez y accéder à tout moment.
+2. **Configuration du Serveur**:
+- Naviguez jusqu'au dossier `Chat` puis au sous-dossier `node`.
+- Ouvrez une fenêtre de commande (cmd) dans ce dossier.
+- Exécutez `node server.js` pour démarrer le serveur.
 
-Réinitialisation du mot de passe : Si jamais vous oubliez votre mot de passe, vous avez la possibilité de le réinitialiser en suivant une procédure simple.
+3. **Configuration du Client**:
+- Ouvrez une autre fenêtre de commande dans le dossier `client`.
+- Exécutez `npm install` pour installer les dépendances.
+- Lancez `npm start` pour démarrer l'application React.
 
-Personnalisation : Une fois connecté, vous pouvez choisir votre pseudonyme, qui sera votre identifiant dans la plateforme.
+## Fonctionnalités
 
-Choix des canaux : Vous pouvez choisir le canal sur lequel vous souhaitez vous connecter parmi une liste de canaux disponibles. Chaque canal représente un espace de discussion distinct.
+### Inscription et Connexion
 
-Liste des utilisateurs connectés : Une fois connecté à un canal, vous aurez accès à une liste des utilisateurs actuellement connectés sur ce même canal.
+- **Inscription Facile**: Créez un compte via Google ou avec une adresse e-mail.
+- **Connexion Sécurisée**: Connectez-vous avec votre adresse e-mail et mot de passe.
+- **Réinitialisation du Mot de Passe**: Suivez une procédure simple pour réinitialiser votre mot de passe en cas d'oubli.
 
-Messagerie privée : Vous pouvez envoyer des messages privés à d'autres utilisateurs présents sur le canal. Cela vous permet d'engager des conversations individuelles en toute confidentialité.
+### Interaction Utilisateur
 
-Messagerie de canal : Sur le canal, vous pouvez envoyer des messages qui seront visibles par tous les utilisateurs présents. Vous avez la possibilité de modifier ou de supprimer vos propres messages selon vos besoins.
+- **Personnalisation**: Choisissez un pseudonyme après connexion.
+- **Choix des Canaux**: Rejoignez des canaux de discussion.
+- **Liste des Utilisateurs Connectés**: Voyez qui est en ligne sur le même canal.
 
-Notifications en temps réel : Chaque fois qu'il y a une modification ou un nouveau message dans le canal, les utilisateurs recevront des notifications pour rester informés en temps réel.
+### Messagerie
 
-Déconnexion : Vous pouvez vous déconnecter du canal spécifique sur lequel vous êtes connecté ou vous déconnecter complètement de l'application.
+- **Messagerie Privée**: Envoyez des messages privés aux utilisateurs du canal.
+- **Messagerie de Canal**: Participez à des discussions de groupe sur le canal.
+- **Modifications et Suppressions**: Gérez vos messages selon vos besoins.
+
+### Notifications
+
+- **Notifications en Temps Réel**: Restez informé des nouvelles activités et messages.
+
+### Déconnexion
+
+- **Gestion de la Session**: Déconnectez-vous du canal ou de l'application complètement.
+
+## Profitez de l'Application!
+
+Nous espérons que vous apprécierez d'utiliser cette application pour vos communications en ligne.
